@@ -5,23 +5,55 @@ BLEService ledService("19B10000-E8F2-537E-4F6C-D104768A1214"); // Bluetooth® Lo
 // Bluetooth® Low Energy LED Switch Characteristic - custom 128-bit UUID, read and writable by central
 BLEByteCharacteristic switchCharacteristic("19B10001-E8F2-537E-4F6C-D104768A1214", BLERead | BLEWrite);
  
-const int Relay1 = 1; 
-const int Relay2 = 41; 
-const int Relay3 = 38; 
-const int Relay4 = 35; 
-const int Relay5 = 48;
+const int outputPins[] = {1,41,38,35,45}; // Pines de salida (similar a PORTB)
  
 int Rvalue; // received value from Bluetooth Application
  
- 
+
+//funciones de los leds
+void funcion_UnoCero(){
+    int time = 300;
+    digitalWrite(14,HIGH);
+    delay(time);
+    for(int i=1;i<5;i++){
+      digitalWrite(outputPins[i-1],HIGH);
+      digitalWrite(outputPins[i],HIGH);
+      delay(time);
+      digitalWrite(outputPins[i-1],LOW);
+      delay(time);
+    }
+
+
+    for(int i=0; i<5; i++){
+      digitalWrite(outputPins[i], LOW);
+    }
+}
+
+void funcion_CeroUno(){
+    int time = 300;
+    digitalWrite(10,HIGH);
+    delay(time);
+    for(int i=4;i>0;i--){
+      digitalWrite(outputPins[i],HIGH);
+      digitalWrite(outputPins[i-1],HIGH);
+      delay(time);
+      digitalWrite(outputPins[i],LOW);
+      delay(time);
+    }
+
+
+    for(int i=0; i<5; i++){
+      digitalWrite(outputPins[i], LOW);
+    }
+}
+
 void setup() {
   Serial.begin(9600); //Baudrate
    
   // Set all the Relays as output
-  pinMode(Relay1, OUTPUT);
-   pinMode(Relay2, OUTPUT);
-     pinMode(Relay3, OUTPUT);
-   pinMode(Relay4, OUTPUT);
+  for (int i = 0; i < 6; i++) {
+    pinMode(outputPins[i], OUTPUT);
+  }
    
   // begin initialization
   if (!BLE.begin()) {
@@ -49,6 +81,7 @@ void setup() {
   Serial.println("BLE LED Peripheral");
 }
  
+bool primeravez=true; 
 void loop() {
   // listen for Bluetooth® Low Energy peripherals to connect:
   BLEDevice central = BLE.central();
@@ -66,43 +99,41 @@ void loop() {
  
           // we check the received commands and then accordingly control 
           // all the relays.
-          
+          //41=amarillo 38=verde 1 = rojo
           if (Rvalue==0) {  
-            Serial.println(switchCharacteristic.value() );
-            Serial.println("Relay1 OFF");
-            digitalWrite(Relay1, LOW); // changed from HIGH to LOW       
+            if(primeravez){
+              digitalWrite(38, LOW);
+              digitalWrite(1, LOW);
+              primeravez=false;
+            }
+
+            digitalWrite(38,HIGH);
+            delay(5000);
+            for(int i=0;i<5;i++){
+              digitalWrite(38,HIGH);
+              delay(500);
+              digitalWrite(38,LOW);
+              delay(500);
+            }
+            digitalWrite(38,LOW);
+            
+            digitalWrite(41,HIGH);
+            delay(2000);
+            digitalWrite(41,LOW);
+
+            digitalWrite(1,HIGH);
+            delay(5000);
+            digitalWrite(1,LOW);
           } 
-          
           else if(Rvalue==1){                              
-            Serial.println(F("Relay1 ON"));
-            digitalWrite(Relay1, HIGH); // changed from LOW to HIGH     
+           funcion_UnoCero();    
           }
-          
           else  if (Rvalue==2) {  
-            Serial.println(switchCharacteristic.value() );
-            Serial.println("Relay2 OFF");
-            digitalWrite(Relay2, LOW); // changed from HIGH to LOW       
+            funcion_CeroUno();     
           } 
           else if(Rvalue==3){                              
-            Serial.println(F("Relay2 ON"));
-            digitalWrite(Relay2, HIGH); // changed from LOW to HIGH     
-          }
-          else if (Rvalue==4) {  
-            Serial.println(switchCharacteristic.value() );
-            Serial.println("Relay3 OFF");
-            digitalWrite(Relay3, LOW); // changed from HIGH to LOW       
-          } 
-          else if(Rvalue==5){                              
-            Serial.println(F("Relay3 ON"));
-            digitalWrite(Relay3, HIGH); // changed from LOW to HIGH     
-          }
-            if (Rvalue==6) {  
-            Serial.println(switchCharacteristic.value() );
-            Serial.println("Relay4 OFF");
-            digitalWrite(Relay4, LOW); // changed from HIGH to LOW       
-          } else if(Rvalue==7){                              
-            Serial.println(F("Relay4 ON"));
-            digitalWrite(Relay4, HIGH); // changed from LOW to HIGH     
+            funcion_UnoCero();
+            funcion_CeroUno();    
           }
         }
       }
