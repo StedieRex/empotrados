@@ -5,10 +5,11 @@ BLEService ledService("19B10000-E8F2-537E-4F6C-D104768A1214"); // Bluetooth® Lo
 // Bluetooth® Low Energy LED Switch Characteristic - custom 128-bit UUID, read and writable by central
 BLEByteCharacteristic switchCharacteristic("19B10001-E8F2-537E-4F6C-D104768A1214", BLERead | BLEWrite);
  
-const int Relay1 = D2; 
-const int Relay2 = D3; 
-const int Relay3 = D4; 
-const int Relay4 = D5; 
+const int Relay1 = 1; 
+const int Relay2 = 41; 
+const int Relay3 = 38; 
+const int Relay4 = 35; 
+const int Relay5 = 48;
  
 int Rvalue; // received value from Bluetooth Application
  
