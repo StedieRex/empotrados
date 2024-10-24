@@ -63,7 +63,7 @@ void setup() {
   }
  
   // set advertised local name and service UUID:
-  BLE.setLocalName("HOME Automation");            // this will appear in the App search result.
+  BLE.setLocalName("ESP32-Equipo5");            // this will appear in the App search result.
   BLE.setAdvertisedService(ledService);
  
   // add the characteristic to the service
@@ -81,6 +81,7 @@ void setup() {
   Serial.println("BLE LED Peripheral");
 }
  
+bool semaforo=false,serie1=false,serie2=false,serieCOM=false;
 bool primeravez=true; 
 void loop() {
   // listen for Bluetooth® Low Energy peripherals to connect:
@@ -93,51 +94,60 @@ void loop() {
     Serial.println(central.address());
  
     
-  while (central.connected()) {
-        if (switchCharacteristic.written()) {
-          Rvalue=switchCharacteristic.value(); // received value is stored in variable Rvalue.
- 
-          // we check the received commands and then accordingly control 
-          // all the relays.
-          //41=amarillo 38=verde 1 = rojo
-          if (Rvalue==0) {  
-            if(primeravez){
-              digitalWrite(38, LOW);
-              digitalWrite(1, LOW);
-              primeravez=false;
-            }
+    while (central.connected()) {
+      if (switchCharacteristic.written()) {
+        Rvalue=switchCharacteristic.value(); // received value is stored in variable Rvalue.
 
-            digitalWrite(38,HIGH);
-            delay(5000);
-            for(int i=0;i<5;i++){
-              digitalWrite(38,HIGH);
-              delay(500);
-              digitalWrite(38,LOW);
-              delay(500);
-            }
-            digitalWrite(38,LOW);
-            
-            digitalWrite(41,HIGH);
-            delay(2000);
-            digitalWrite(41,LOW);
+        // we check the received commands and then accordingly control 
+        // all the relays.
+        //41=amarillo 38=verde 1 = rojo
 
-            digitalWrite(1,HIGH);
-            delay(5000);
-            digitalWrite(1,LOW);
-          } 
-          else if(Rvalue==1){                              
-           funcion_UnoCero();    
-          }
-          else  if (Rvalue==2) {  
-            funcion_CeroUno();     
-          } 
-          else if(Rvalue==3){                              
-            funcion_UnoCero();
-            funcion_CeroUno();    
-          }
+        switch (Rvalue) {
+        case 0: semaforo=true; break;
+        case 1: serie1=true; break;
+        case 2: serie2=true; break;
+        case 3: serieCOM=true; break;
+        case 4: semaforo=false;serie1=false;serie2=false;serieCOM=false; break;
         }
       }
- 
+        if (semaforo) {  
+          if(primeravez){
+            digitalWrite(38, LOW);
+            digitalWrite(1, LOW);
+            primeravez=false;
+          }
+
+          digitalWrite(38,HIGH);
+          delay(5000);
+          for(int i=0;i<5;i++){
+            digitalWrite(38,HIGH);
+            delay(500);
+            digitalWrite(38,LOW);
+            delay(500);
+          }
+          digitalWrite(38,LOW);
+          
+          digitalWrite(41,HIGH);
+          delay(2000);
+          digitalWrite(41,LOW);
+
+          digitalWrite(1,HIGH);
+          delay(5000);
+          digitalWrite(1,LOW);
+        } 
+        else if(serie1){                              
+          funcion_UnoCero();    
+        }
+        else  if (serie2) {  
+          funcion_CeroUno();     
+        } 
+        else if(serieCOM){                              
+          funcion_UnoCero();
+          funcion_CeroUno();    
+        }
+
+    }
+
     // when the central disconnects, print it out:
     Serial.print(F("Disconnected from central: "));
     Serial.println(central.address());
