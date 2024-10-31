@@ -15,10 +15,10 @@ const int outputPins[] = {1, 41, 38, 35, 48 }; // Pines de salida (similar a POR
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
 
-// Check Serial Port Profile
+/*Check Serial Port Profile
 #if !defined(CONFIG_BT_SPP_ENABLED)
 #error Serial Port Profile for Bluetooth is not available or not enabled. It is only available for the ESP32 chip.
-#endif
+#endif*/
 
 BluetoothSerial SerialBT;
 
